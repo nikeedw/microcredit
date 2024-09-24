@@ -19,6 +19,5 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
 
 export interface UserPayload {
     userId: string
-    // email: string;
-    // username?: string;
+    email: string
 }

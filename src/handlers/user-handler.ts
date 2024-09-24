@@ -4,6 +4,8 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { EnvConfigs } from '../EnvConfigs'
 import { UserPayload } from '../middlewares/checkJwt'
+import { sendEmail } from '../adapters/email-adapter'
+import { generateHtml } from '../helpers/generateHtml'
 
 export const UserHandler = {
     register: async (req: Request, res: Response) => {
@@ -58,7 +60,7 @@ export const UserHandler = {
                 return res.status(400).json({ error: 'Wrong login or password' })
             }
 
-            const token = jwt.sign({ userId: user.id }, EnvConfigs.SECRET_KEY)
+            const token = jwt.sign({ userId: user.id, email: user.email }, EnvConfigs.SECRET_KEY)
 
             return res.json({ token })
         } catch (error) {
@@ -79,6 +81,35 @@ export const UserHandler = {
             }
 
             return res.status(200).json(user)
+        } catch (error) {
+            console.log('err', error)
+            return res.status(500).json({ error: 'Something went wrong' })
+        }
+    },
+    sendEmail: async (req: Request, res: Response) => {
+        const to = getParsedJwt(req, res)!.email
+
+        try {
+            const { amount, term } = req.body
+
+            if (!amount || !term) {
+                return res.status(400).json({ error: 'Did not provided amount or term' })
+            }
+
+            const match = term.match(/\d+/)
+            const numberTerm = parseInt(match[0], 10)
+
+            const monthly = Math.ceil(Number(amount) / numberTerm + numberTerm * 0.2)
+
+            const html = generateHtml(amount, term, monthly)
+
+            const status = await sendEmail({
+                to,
+                subject: 'Your offer',
+                priority: 'high',
+                html,
+            })
+            return res.status(200).json({ status })
         } catch (error) {
             console.log('err', error)
             return res.status(500).json({ error: 'Something went wrong' })
