@@ -9,6 +9,7 @@ import { createServer } from 'http'
 import debug from 'debug'
 
 import { app } from '../server'
+import { EnvConfigs } from '../src/EnvConfigs'
 
 debug('microcredit:server')
 
@@ -16,7 +17,7 @@ debug('microcredit:server')
  * Get port from environment and store in Express.
  */
 
-const port = normalizePort(process.env.PORT || '5000')
+const port = normalizePort(EnvConfigs.PORT || '5000')
 app.set('port', port)
 
 /**
