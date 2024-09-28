@@ -7,6 +7,6 @@ const router = Router()
 router.post('/register', UserHandler.register)
 router.post('/login', UserHandler.login)
 router.get('/current', checkJwt, UserHandler.current)
-router.get('/send-email', UserHandler.sendEmail)
+router.post('/send-email', checkJwt, UserHandler.sendEmail)
 
 export default router
