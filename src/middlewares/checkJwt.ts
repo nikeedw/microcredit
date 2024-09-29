@@ -8,12 +8,12 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
 
     try {
         if (!EnvConfigs.SECRET_KEY || !token || (token && !jwt.verify(token, EnvConfigs.SECRET_KEY))) {
-            throw new Error('Not authorized')
+            throw new Error('Не авторизован')
         }
 
         next()
     } catch (e) {
-        res.status(500).json({ error: 'Internal server error' })
+        res.status(500).json({ error: 'Что-то пошло не так' })
     }
 }
 

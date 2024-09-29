@@ -11,7 +11,7 @@ export const UserHandler = {
     register: async (req: Request, res: Response) => {
         const { email, password, username } = req.body
         if (!email || !password || !username) {
-            return res.status(400).json({ error: 'All fields are required!' })
+            return res.status(400).json({ error: 'Все поля обязательны' })
         }
 
         try {
@@ -21,7 +21,7 @@ export const UserHandler = {
                 },
             })
             if (existingUser) {
-                return res.status(400).json({ error: 'User already exists!' })
+                return res.status(400).json({ error: 'Пользователь уже существует' })
             }
 
             const hashedPassword = await bcrypt.hash(password, 10)
@@ -37,27 +37,27 @@ export const UserHandler = {
             return res.json(user)
         } catch (error) {
             console.log('Register error', error)
-            return res.status(500).json({ error: 'Internal server error' })
+            return res.status(500).json({ error: 'Что-то пошло не так' })
         }
     },
     login: async (req: Request, res: Response) => {
         const { username, password } = req.body
 
         if (!username || !password) {
-            return res.status(400).json({ error: 'All fields are required!' })
+            return res.status(400).json({ error: 'Все поля обязательны' })
         }
 
         try {
             const user = await prisma.user.findUnique({ where: { username } })
 
             if (!user) {
-                return res.status(400).json({ error: 'Wrong login or password' })
+                return res.status(400).json({ error: 'Неверный логин или пароль' })
             }
 
             const valid = await bcrypt.compare(password, user.password)
 
             if (!valid) {
-                return res.status(400).json({ error: 'Wrong login or password' })
+                return res.status(400).json({ error: 'Неверный логин или пароль' })
             }
 
             const token = jwt.sign({ userId: user.id, email: user.email }, EnvConfigs.SECRET_KEY)
@@ -65,7 +65,7 @@ export const UserHandler = {
             return res.json({ token })
         } catch (error) {
             console.log('Login error', error)
-            return res.status(500).json({ error: 'Internal server error' })
+            return res.status(500).json({ error: 'Что-то пошло не так' })
         }
     },
     current: async (req: Request, res: Response) => {
@@ -77,13 +77,13 @@ export const UserHandler = {
             })
 
             if (!user) {
-                return res.status(400).json({ error: 'Unable to found the user' })
+                return res.status(400).json({ error: 'Пользователь не найден' })
             }
 
             return res.status(200).json(user)
         } catch (error) {
             console.log('err', error)
-            return res.status(500).json({ error: 'Something went wrong' })
+            return res.status(500).json({ error: 'Что-то пошло не так' })
         }
     },
     sendEmail: async (req: Request, res: Response) => {
@@ -93,7 +93,7 @@ export const UserHandler = {
             const { amount, term } = req.body
 
             if (!amount || !term) {
-                return res.status(400).json({ error: 'Did not provided amount or term' })
+                return res.status(400).json({ error: 'Все поля обязательны' })
             }
 
             const match = term.match(/\d+/)
@@ -112,7 +112,7 @@ export const UserHandler = {
             return res.status(200).json({ status })
         } catch (error) {
             console.log('err', error)
-            return res.status(500).json({ error: 'Something went wrong' })
+            return res.status(500).json({ error: 'Что-то пошло не так' })
         }
     },
 }
@@ -121,14 +121,14 @@ const getParsedJwt = (req: Request, res: Response) => {
     // get user from jwt
     const token = req.headers.authorization?.split(' ')[1]
     if (!token) {
-        res.status(401).json({ error: 'Unauthorized' })
+        res.status(401).json({ error: 'Не авторизован' })
         return
     }
 
     try {
         return jwt.verify(token, EnvConfigs.SECRET_KEY) as UserPayload
     } catch (err) {
-        res.status(401).json({ error: 'Unauthorized' })
+        res.status(401).json({ error: 'Не авторизован' })
         return
     }
 }
